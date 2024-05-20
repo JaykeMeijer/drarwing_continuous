@@ -543,7 +543,10 @@ files = [
 ]
 
 [package.dependencies]
-numpy = {version = ">=1.23.5", markers = "python_version >= \"3.11\""}
+numpy = [
+    {version = ">=1.26.0", markers = "python_version >= \"3.12\""},
+    {version = ">=1.23.5", markers = "python_version >= \"3.11\" and python_version < \"3.12\""},
+]
 
 [[package]]
 name = "packaging"
@@ -812,5 +815,5 @@ files = [
 
 [metadata]
 lock-version = "2.0"
-python-versions = "~3.11"
-content-hash = "9433feae7eef49466a18acddaff16f5d3704df53e70f14cf59d53d1fc409930f"
+python-versions = ">=3.11,<3.13"
+content-hash = "6ada90ba23460db5dde9847bc622c0bba0d85cd7439eff100993f3fffe632c76"
