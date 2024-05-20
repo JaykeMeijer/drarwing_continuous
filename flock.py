@@ -2,7 +2,7 @@ from finch.run_continuous import run_continuous_finch, BrushSet
 
 import logging
 
-LOGLEVEL = logging.DEBUG
+LOGLEVEL = logging.INFO
 
 # Create a custom logger
 logger = logging.getLogger()
@@ -17,4 +17,4 @@ logger.addHandler(c_handler)
 
 image_folder = "_input_images"
 
-result = run_continuous_finch(image_folder=image_folder, brush_sets=[brush_set for brush_set in BrushSet])
+result = run_continuous_finch(image_folder=image_folder, brush_sets=[BrushSet.Canvas, BrushSet.Oil, BrushSet.Watercolor])

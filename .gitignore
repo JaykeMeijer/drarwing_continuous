@@ -6,3 +6,4 @@ gcf_upload.sh
 .idea
 __pycache__
 .vscode
+.python-version

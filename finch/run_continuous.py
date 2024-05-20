@@ -26,7 +26,7 @@ from finch.shared_state import State
 
 logger = logging.getLogger(__name__)
 
-MAXIMUM_TIME_PER_IMAGE_SECONDS = 5 * 60
+MAXIMUM_TIME_PER_IMAGE_SECONDS = 10 * 60
 MINIMUM_STEP_TIME_SECONDS = 0.0001
 WAIT_BETWEEN_IMAGES_SECONDS = 1 * 60
 DIFF_METHOD = DifferenceMethod.DELTAE
