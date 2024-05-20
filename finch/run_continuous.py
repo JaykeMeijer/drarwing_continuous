@@ -129,6 +129,7 @@ def _initialize_for_next_image(
     shared_state.target_image = target_image
     if shared_state.specimen.is_placeholder:
         shared_state.specimen = get_initial_specimen(target_image=target_image)
+        shared_state.specimen.is_placeholder = False
     shared_state.score = 9999999
 
     return (
