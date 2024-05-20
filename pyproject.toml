@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Continuous 'forever painting' adaptation of Berry van Someren's drarwing project"
 authors = ["Jayke Meijer"]
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = ">=3.11,<3.13"

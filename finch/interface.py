@@ -2,7 +2,7 @@ import enum
 import time
 
 import cv2
-from screeninfo import get_monitors
+from screeninfo import ScreenInfoError, get_monitors
 
 from finch.shared_state import State
 
@@ -18,8 +18,9 @@ class ShowType(enum.Enum):
 
 def get_window_size(use_full_monitor: bool = False) -> tuple[int, int]:
     if use_full_monitor:
-        monitors = get_monitors()
-        if len(monitors) == 0:
+        try:
+            monitors = get_monitors()
+        except ScreenInfoError:
             raise RuntimeError("No connected monitor found")
 
         primary_monitors = [monitor for monitor in monitors if monitor.is_primary]
