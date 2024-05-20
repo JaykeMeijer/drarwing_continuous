@@ -1,10 +1,12 @@
 import logging
 
 from datetime import datetime
+import numpy as np
 import time
 from os import listdir
 from os.path import isfile, join
 from threading import Thread
+from typing import cast
 
 import random
 import cv2
@@ -17,7 +19,7 @@ from finch.difference_image import DifferenceMethod
 from finch.fitness import get_fitness
 from finch.generate import get_initial_specimen, iterate_image, is_drawing_finished
 from finch.image_gradient import ImageGradient
-from finch.primitive_types import Image
+from finch.primitive_types import FitnessScore, Image
 from finch.interface import get_window_size, render_thread
 from finch.scale import scale_to_dimension
 from finch.shared_state import State
@@ -28,14 +30,14 @@ MAXIMUM_TIME_PER_IMAGE_SECONDS = 5 * 60
 MINIMUM_STEP_TIME_SECONDS = 0.0001
 WAIT_BETWEEN_IMAGES_SECONDS = 1 * 60
 DIFF_METHOD = DifferenceMethod.DELTAE
-FULLSCREEN = True
+FULLSCREEN = False
 
 
-def run_continuous_finch(image_folder: str, brush_sets: list[BrushSet]) -> Image | tuple[Image, bytes]:
+def run_continuous_finch(image_folder: str, brush_sets: list[BrushSet]):
     n_iterations_with_same_score = 0
     last_update_time = datetime.now()
 
-    shared_state = State()
+    shared_state = _initial_shared_state_object()
 
     thread = Thread(
         target=render_thread,
@@ -104,7 +106,20 @@ def run_continuous_finch(image_folder: str, brush_sets: list[BrushSet]) -> Image
     thread.join()
 
 
-def _initialize_for_next_image(image_folder, brush_sets, shared_state: State) -> tuple[Image, Image, int]:
+def _initial_shared_state_object() -> State:
+    """Create some initial shared state object - this will be overwritten before starting anyway"""
+    empty_image: Image = np.zeros((0,0,1))
+    return State(
+        img_path="",
+        brush=BrushSet.Canvas,
+        target_image=empty_image,
+        specimen=get_initial_specimen(empty_image, is_placeholder=True),
+    )
+
+
+def _initialize_for_next_image(
+    image_folder, brush_sets, shared_state: State
+) -> tuple[Image, ImageGradient, FitnessScore]:
     shared_state.img_path = _get_random_image_path(image_folder, shared_state.img_path)
     shared_state.brush = random.choice(brush_sets)
     preload_brush_textures_for_brush_set(brush_set=shared_state.brush)
@@ -112,7 +127,7 @@ def _initialize_for_next_image(image_folder, brush_sets, shared_state: State) ->
     logger.info(f"Drawing image {shared_state.img_path}")
     target_image, target_gradient = _prep_image(shared_state.img_path)
     shared_state.target_image = target_image
-    if shared_state.specimen is None:
+    if shared_state.specimen.is_placeholder:
         shared_state.specimen = get_initial_specimen(target_image=target_image)
     shared_state.score = 9999999
 
@@ -128,12 +143,12 @@ def _get_random_image_path(image_folder: str, previous: str | None) -> str:
     img_path = previous
     while img_path == previous:
         img_path = random.choice(img_paths)
-    return img_path
+    return cast(str, img_path)
 
 
 def _prep_image(img_path: str) -> tuple[Image, ImageGradient]:
     image = cv2.imread(img_path)
-    dimension = get_window_size()
+    dimension = get_window_size(use_full_monitor=FULLSCREEN)
     image = scale_to_dimension(image, dimension)
     image = cv2.blur(image, (5, 5))
     return image, ImageGradient(image=image)

@@ -10,7 +10,7 @@ def _get_fitness_from_absolute_difference_image(diff_image: Image) -> FitnessSco
     n_elements = np.prod(diff_image.shape)
     max_potential_diff_score = n_elements * 255
     normalized_diff_score = image_score / max_potential_diff_score
-    return normalized_diff_score
+    return float(normalized_diff_score)
 
 
 def get_fitness(

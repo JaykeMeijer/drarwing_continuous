@@ -1,17 +1,18 @@
 from dataclasses import dataclass
 
-from finch.brush import Brush
+from finch.brush import BrushSet
 from finch.primitive_types import Image
 from finch.specimen import Specimen
 
 
 @dataclass
 class State:
-    img_path: str | None = None
-    brush: Brush | None = None
+    img_path: str
+    brush: BrushSet
 
-    target_image: Image | None = None
-    specimen: Specimen | None = None
+    target_image: Image
+    specimen: Specimen
+
     score: int = 99999999
 
     image_available: bool = False

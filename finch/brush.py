@@ -5,7 +5,6 @@ import random
 import cv2
 import numpy as np
 from pathlib import Path
-from typing import Optional, List
 
 from finch.primitive_types import Color, Point, FitnessScore
 
@@ -40,15 +39,6 @@ class Brush:
         )
 
 
-def str_to_brush_set(s: str) -> BrushSet:
-    return {
-        "Oil": BrushSet.Oil,
-        "Canvas": BrushSet.Canvas,
-        "Sketch": BrushSet.Sketch,
-        "Watercolor": BrushSet.Watercolor,
-    }[s]
-
-
 def get_brush_size_for_fitness(fitness: FitnessScore, image_height: int, image_width: int) -> int:
     # Note that the fitness score is actually the percentage of difference with the target image
     # The brush size is then simply a percentage of the size of the image, based on this difference,
@@ -59,15 +49,15 @@ def get_brush_size_for_fitness(fitness: FitnessScore, image_height: int, image_w
     return brush_size
 
 
-PRELOADED_BUSH_TEXTURES: Optional[List] = None
+PRELOADED_BUSH_TEXTURES: list = []
 
 
-def _set_global_brush_textures(brush_textures: List[np.ndarray]) -> None:
+def _set_global_brush_textures(brush_textures: list[np.ndarray]) -> None:
     global PRELOADED_BUSH_TEXTURES
     PRELOADED_BUSH_TEXTURES = brush_textures
 
 
-def get_global_brush_textures() -> List[np.ndarray]:
+def get_global_brush_textures() -> list[np.ndarray]:
     return PRELOADED_BUSH_TEXTURES
 
 
@@ -80,7 +70,7 @@ def _preload_brush_textures_from_path(directory_name: Path) -> None:
     _set_global_brush_textures(textures)
 
 
-def _brush_set_to_directory_path(brush_set: BrushSet) -> str:
+def _brush_set_to_directory_path(brush_set: BrushSet) -> Path:
     directory_name = {
         BrushSet.Oil: "oil",
         BrushSet.Sketch: "sketch",
@@ -113,7 +103,7 @@ def draw_brush_on_image(brush: Brush, image: np.ndarray) -> np.ndarray:
     alpha = brush_texture_rotated.astype(float) / 255.0
     alpha_3 = np.dstack((alpha, alpha, alpha))
 
-    foreground = np.full_like(brush_texture_rotated, brush.color, shape=(*brush_texture_rotated.shape, 3))
+    foreground = np.full_like(brush_texture_rotated, brush.color, shape=(*brush_texture_rotated.shape, 3), dtype=float)
 
     # Where to start drawing, in Canvas Space
     draw_y = int(brush.position.y - brush_width / 2)

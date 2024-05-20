@@ -32,9 +32,9 @@ def _get_blank_image_like(example_image: Image) -> Image:
     return blank_image
 
 
-def get_initial_specimen(target_image: Image) -> Specimen:
+def get_initial_specimen(target_image: Image, is_placeholder: bool = False) -> Specimen:
     blank_image = _get_blank_image_like(target_image)
-    specimen = Specimen(cached_image=blank_image)
+    specimen = Specimen(cached_image=blank_image, diff_image=blank_image, is_placeholder=True)
     return specimen
 
 

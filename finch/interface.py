@@ -2,6 +2,7 @@ import enum
 import time
 
 import cv2
+from screeninfo import get_monitors
 
 from finch.shared_state import State
 
@@ -15,8 +16,22 @@ class ShowType(enum.Enum):
     ORIGINAL = enum.auto()
 
 
-def get_window_size() -> tuple[int, int]:
-    _, _, x, y = cv2.getWindowImageRect(WINDOW_NAME)
+def get_window_size(use_full_monitor: bool = False) -> tuple[int, int]:
+    if use_full_monitor:
+        monitors = get_monitors()
+        if len(monitors) == 0:
+            raise RuntimeError("No connected monitor found")
+
+        primary_monitors = [monitor for monitor in monitors if monitor.is_primary]
+        if len(primary_monitors) > 0:
+            monitor = primary_monitors[0]
+        else:
+            # No primary monitor, lets just grab another
+            monitor = monitors[0]
+
+        return (monitor.width, monitor.height)
+    else:
+        _, _, x, y = cv2.getWindowImageRect(WINDOW_NAME)
     return (x, y)
 
 
@@ -41,6 +56,8 @@ def render_thread(shared_state: State, fullscreen: bool = True):
     last_frame_duration = -1.0
     while not shared_state.flag_stop and _window_exists(WINDOW_NAME):
         if shared_state.image_available:
+            assert shared_state.specimen is not None
+            assert shared_state.brush is not None
             match show:
                 case ShowType.NORMAL:
                     main_image = shared_state.specimen.cached_image
@@ -48,6 +65,8 @@ def render_thread(shared_state: State, fullscreen: bool = True):
                     main_image = cv2.cvtColor(shared_state.specimen.diff_image, cv2.COLOR_GRAY2BGR)
                 case ShowType.ORIGINAL:
                     main_image = shared_state.target_image
+                case _:
+                    raise NotImplementedError
 
             if debug or shared_state.lock_image:
                 main_image = main_image.copy()

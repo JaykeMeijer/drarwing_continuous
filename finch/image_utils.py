@@ -9,5 +9,5 @@ def get_color_from_image(image: Image, position: Point) -> Color:
     return color
 
 
-def scale_image(image: Image, factor: int) -> tuple[int, int]:
+def scale_image(image: Image, factor: float) -> Image:
     return cv2.resize(image, (int(image.shape[1] * factor), int(image.shape[0] * factor)))
